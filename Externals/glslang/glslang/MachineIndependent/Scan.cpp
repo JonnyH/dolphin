@@ -1,12 +1,12 @@
 //
-//Copyright (C) 2002-2005  3Dlabs Inc. Ltd.
-//Copyright (C) 2013 LunarG, Inc.
+// Copyright (C) 2002-2005  3Dlabs Inc. Ltd.
+// Copyright (C) 2013 LunarG, Inc.
 //
-//All rights reserved.
+// All rights reserved.
 //
-//Redistribution and use in source and binary forms, with or without
-//modification, are permitted provided that the following conditions
-//are met:
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
 //
 //    Redistributions of source code must retain the above copyright
 //    notice, this list of conditions and the following disclaimer.
@@ -20,25 +20,25 @@
 //    contributors may be used to endorse or promote products derived
 //    from this software without specific prior written permission.
 //
-//THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-//"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-//LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-//FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-//COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-//BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-//LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-//CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-//LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-//ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-//POSSIBILITY OF SUCH DAMAGE.
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 //
 
 //
 // GLSL scanning, leveraging the scanning done by the preprocessor.
 //
 
-#include <string.h>
+#include <cstring>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -55,7 +55,7 @@
 
 // Required to avoid missing prototype warnings for some compilers
 int yylex(YYSTYPE*, glslang::TParseContext&);
-    
+
 namespace glslang {
 
 // read past any white space
@@ -142,13 +142,13 @@ void TInputScanner::consumeWhitespaceComment(bool& foundNonSpaceTab)
 {
     do {
         consumeWhiteSpace(foundNonSpaceTab);
- 
+
         // if not starting a comment now, then done
         int c = peek();
         if (c != '/' || c == EndOfInput)
             return;
 
-        // skip potential comment 
+        // skip potential comment
         foundNonSpaceTab = true;
         if (! consumeComment())
             return;
@@ -175,7 +175,7 @@ bool TInputScanner::scanVersion(int& version, EProfile& profile, bool& notFirstT
 
     bool versionNotFirst = false;  // means not first WRT comments and white space, nothing more
     notFirstToken = false;         // means not first WRT to real tokens
-    version = 0;  // means not found
+    version = 0;                   // means not found
     profile = ENoProfile;
 
     bool foundNonSpaceTab = false;
@@ -199,10 +199,10 @@ bool TInputScanner::scanVersion(int& version, EProfile& profile, bool& notFirstT
         }
         lookingInMiddle = true;
 
-        // Nominal start, skipping the desktop allowed comments and white space, but tracking if 
+        // Nominal start, skipping the desktop allowed comments and white space, but tracking if
         // something else was found for ES:
         consumeWhitespaceComment(foundNonSpaceTab);
-        if (foundNonSpaceTab) 
+        if (foundNonSpaceTab)
             versionNotFirst = true;
 
         // "#"
@@ -463,6 +463,25 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["u64vec3"] =                 U64VEC3;
     (*KeywordMap)["u64vec4"] =                 U64VEC4;
 
+#ifdef AMD_EXTENSIONS
+    (*KeywordMap)["float16_t"] =               FLOAT16_T;
+    (*KeywordMap)["f16vec2"] =                 F16VEC2;
+    (*KeywordMap)["f16vec3"] =                 F16VEC3;
+    (*KeywordMap)["f16vec4"] =                 F16VEC4;
+    (*KeywordMap)["f16mat2"] =                 F16MAT2;
+    (*KeywordMap)["f16mat3"] =                 F16MAT3;
+    (*KeywordMap)["f16mat4"] =                 F16MAT4;
+    (*KeywordMap)["f16mat2x2"] =               F16MAT2X2;
+    (*KeywordMap)["f16mat2x3"] =               F16MAT2X3;
+    (*KeywordMap)["f16mat2x4"] =               F16MAT2X4;
+    (*KeywordMap)["f16mat3x2"] =               F16MAT3X2;
+    (*KeywordMap)["f16mat3x3"] =               F16MAT3X3;
+    (*KeywordMap)["f16mat3x4"] =               F16MAT3X4;
+    (*KeywordMap)["f16mat4x2"] =               F16MAT4X2;
+    (*KeywordMap)["f16mat4x3"] =               F16MAT4X3;
+    (*KeywordMap)["f16mat4x4"] =               F16MAT4X4;
+#endif
+
     (*KeywordMap)["sampler2D"] =               SAMPLER2D;
     (*KeywordMap)["samplerCube"] =             SAMPLERCUBE;
     (*KeywordMap)["samplerCubeArray"] =        SAMPLERCUBEARRAY;
@@ -553,6 +572,9 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["noperspective"] =           NOPERSPECTIVE;
     (*KeywordMap)["smooth"] =                  SMOOTH;
     (*KeywordMap)["flat"] =                    FLAT;
+#ifdef AMD_EXTENSIONS
+    (*KeywordMap)["__explicitInterpAMD"] =     __EXPLICITINTERPAMD;
+#endif
     (*KeywordMap)["centroid"] =                CENTROID;
     (*KeywordMap)["precise"] =                 PRECISE;
     (*KeywordMap)["invariant"] =               INVARIANT;
@@ -561,7 +583,7 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["superp"] =                  SUPERP;
 
     ReservedSet = new std::unordered_set<const char*, str_hash, str_eq>;
-    
+
     ReservedSet->insert("common");
     ReservedSet->insert("partition");
     ReservedSet->insert("active");
@@ -609,18 +631,21 @@ void TScanContext::deleteKeywordMap()
     ReservedSet = nullptr;
 }
 
+// Called by yylex to get the next token.
+// Returning 0 implies end of input.
 int TScanContext::tokenize(TPpContext* pp, TParserToken& token)
 {
     do {
         parserToken = &token;
         TPpToken ppToken;
-        tokenText = pp->tokenize(&ppToken);
-        if (tokenText == nullptr)
+        int token = pp->tokenize(ppToken);
+        if (token == EndOfInput)
             return 0;
 
+        tokenText = ppToken.name;
         loc = ppToken.loc;
         parserToken->sType.lex.loc = loc;
-        switch (ppToken.token) {
+        switch (token) {
         case ';':  afterType = false;   return SEMICOLON;
         case ',':  afterType = false;   return COMMA;
         case ':':                       return COLON;
@@ -649,11 +674,11 @@ int TScanContext::tokenize(TPpContext* pp, TParserToken& token)
             parseContext.error(loc, "illegal use of escape character", "\\", "");
             break;
 
-        case PpAtomAdd:                return ADD_ASSIGN;
-        case PpAtomSub:                return SUB_ASSIGN;
-        case PpAtomMul:                return MUL_ASSIGN;
-        case PpAtomDiv:                return DIV_ASSIGN;
-        case PpAtomMod:                return MOD_ASSIGN;
+        case PPAtomAddAssign:          return ADD_ASSIGN;
+        case PPAtomSubAssign:          return SUB_ASSIGN;
+        case PPAtomMulAssign:          return MUL_ASSIGN;
+        case PPAtomDivAssign:          return DIV_ASSIGN;
+        case PPAtomModAssign:          return MOD_ASSIGN;
 
         case PpAtomRight:              return RIGHT_OP;
         case PpAtomLeft:               return LEFT_OP;
@@ -675,13 +700,20 @@ int TScanContext::tokenize(TPpContext* pp, TParserToken& token)
 
         case PpAtomDecrement:          return DEC_OP;
         case PpAtomIncrement:          return INC_OP;
-                                   
+
+        case PpAtomColonColon:
+            parseContext.error(loc, "not supported", "::", "");
+            break;
+
         case PpAtomConstInt:           parserToken->sType.lex.i   = ppToken.ival;       return INTCONSTANT;
         case PpAtomConstUint:          parserToken->sType.lex.i   = ppToken.ival;       return UINTCONSTANT;
         case PpAtomConstInt64:         parserToken->sType.lex.i64 = ppToken.i64val;     return INT64CONSTANT;
         case PpAtomConstUint64:        parserToken->sType.lex.i64 = ppToken.i64val;     return UINT64CONSTANT;
         case PpAtomConstFloat:         parserToken->sType.lex.d   = ppToken.dval;       return FLOATCONSTANT;
         case PpAtomConstDouble:        parserToken->sType.lex.d   = ppToken.dval;       return DOUBLECONSTANT;
+#ifdef AMD_EXTENSIONS
+        case PpAtomConstFloat16:       parserToken->sType.lex.d   = ppToken.dval;       return FLOAT16CONSTANT;
+#endif
         case PpAtomIdentifier:
         {
             int token = tokenizeIdentifier();
@@ -693,7 +725,7 @@ int TScanContext::tokenize(TPpContext* pp, TParserToken& token)
 
         default:
             char buf[2];
-            buf[0] = (char)ppToken.token;
+            buf[0] = (char)token;
             buf[1] = 0;
             parseContext.error(loc, "unexpected token", buf, "");
             break;
@@ -774,7 +806,7 @@ int TScanContext::tokenizeIdentifier()
         return keyword;
 
     case BUFFER:
-        if ((parseContext.profile == EEsProfile && parseContext.version < 310) || 
+        if ((parseContext.profile == EEsProfile && parseContext.version < 310) ||
             (parseContext.profile != EEsProfile && parseContext.version < 430))
             return identifierOrType();
         return keyword;
@@ -847,7 +879,7 @@ int TScanContext::tokenizeIdentifier()
     case MAT3X4:
     case MAT4X2:
     case MAT4X3:
-    case MAT4X4:        
+    case MAT4X4:
         return matNxM();
 
     case DMAT2:
@@ -933,9 +965,37 @@ int TScanContext::tokenizeIdentifier()
     case U64VEC2:
     case U64VEC3:
     case U64VEC4:
-        if (parseContext.profile != EEsProfile && parseContext.version >= 450)
+        afterType = true;
+        if (parseContext.symbolTable.atBuiltInLevel() ||
+            (parseContext.extensionTurnedOn(E_GL_ARB_gpu_shader_int64) &&
+             parseContext.profile != EEsProfile && parseContext.version >= 450))
             return keyword;
         return identifierOrType();
+
+#ifdef AMD_EXTENSIONS
+    case FLOAT16_T:
+    case F16VEC2:
+    case F16VEC3:
+    case F16VEC4:
+    case F16MAT2:
+    case F16MAT3:
+    case F16MAT4:
+    case F16MAT2X2:
+    case F16MAT2X3:
+    case F16MAT2X4:
+    case F16MAT3X2:
+    case F16MAT3X3:
+    case F16MAT3X4:
+    case F16MAT4X2:
+    case F16MAT4X3:
+    case F16MAT4X4:
+        afterType = true;
+        if (parseContext.symbolTable.atBuiltInLevel() ||
+            (parseContext.extensionTurnedOn(E_GL_AMD_gpu_shader_half_float) &&
+             parseContext.profile != EEsProfile && parseContext.version >= 450))
+            return keyword;
+        return identifierOrType();
+#endif
 
     case SAMPLERCUBEARRAY:
     case SAMPLERCUBEARRAYSHADOW:
@@ -973,7 +1033,7 @@ int TScanContext::tokenizeIdentifier()
     case USAMPLER2DARRAY:
         afterType = true;
         return nonreservedKeyword(300, 130);
-        
+
     case ISAMPLER2DRECT:
     case USAMPLER2DRECT:
         afterType = true;
@@ -991,7 +1051,7 @@ int TScanContext::tokenizeIdentifier()
         if (parseContext.extensionsTurnedOn(Num_AEP_texture_buffer, AEP_texture_buffer))
             return keyword;
         return es30ReservedFromGLSL(140);
-        
+
     case SAMPLER2DMS:
     case ISAMPLER2DMS:
     case USAMPLER2DMS:
@@ -1110,12 +1170,20 @@ int TScanContext::tokenizeIdentifier()
 
     case NOPERSPECTIVE:
         return es30ReservedFromGLSL(130);
-        
+
     case SMOOTH:
         if ((parseContext.profile == EEsProfile && parseContext.version < 300) ||
             (parseContext.profile != EEsProfile && parseContext.version < 130))
             return identifierOrType();
         return keyword;
+
+#ifdef AMD_EXTENSIONS
+    case __EXPLICITINTERPAMD:
+        if (parseContext.profile != EEsProfile && parseContext.version >= 450 &&
+            parseContext.extensionTurnedOn(E_GL_AMD_shader_explicit_vertex_parameter))
+            return keyword;
+        return identifierOrType();
+#endif
 
     case FLAT:
         if (parseContext.profile == EEsProfile && parseContext.version < 300)
@@ -1130,7 +1198,7 @@ int TScanContext::tokenizeIdentifier()
         return keyword;
 
     case PRECISE:
-        if ((parseContext.profile == EEsProfile && parseContext.extensionsTurnedOn(Num_AEP_gpu_shader5, AEP_gpu_shader5)) || 
+        if ((parseContext.profile == EEsProfile && parseContext.extensionsTurnedOn(Num_AEP_gpu_shader5, AEP_gpu_shader5)) ||
             (parseContext.profile != EEsProfile && parseContext.version >= 400))
             return keyword;
         if (parseContext.profile == EEsProfile && parseContext.version == 310) {
@@ -1161,7 +1229,7 @@ int TScanContext::tokenizeIdentifier()
         bool reserved = parseContext.profile == EEsProfile || parseContext.version >= 130;
         return identifierOrReserved(reserved);
     }
-    
+
     default:
         parseContext.infoSink.info.message(EPrefixInternalError, "Unknown glslang keyword", loc);
         return 0;
@@ -1292,7 +1360,7 @@ int TScanContext::dMat()
 
 int TScanContext::firstGenerationImage(bool inEs310)
 {
-    if (parseContext.symbolTable.atBuiltInLevel() || 
+    if (parseContext.symbolTable.atBuiltInLevel() ||
         (parseContext.profile != EEsProfile && (parseContext.version >= 420 || parseContext.extensionTurnedOn(E_GL_ARB_shader_image_load_store))) ||
         (inEs310 && parseContext.profile == EEsProfile && parseContext.version >= 310))
         return keyword;
@@ -1317,8 +1385,8 @@ int TScanContext::secondGenerationImage()
         return keyword;
     }
 
-    if (parseContext.symbolTable.atBuiltInLevel() || 
-        (parseContext.profile != EEsProfile && 
+    if (parseContext.symbolTable.atBuiltInLevel() ||
+        (parseContext.profile != EEsProfile &&
          (parseContext.version >= 420 || parseContext.extensionTurnedOn(E_GL_ARB_shader_image_load_store))))
         return keyword;
 

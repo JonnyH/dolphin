@@ -10,10 +10,12 @@ set(SOURCES
     MachineIndependent/glslang.y
     MachineIndependent/glslang_tab.cpp
     MachineIndependent/Constant.cpp
+    MachineIndependent/iomapper.cpp
     MachineIndependent/InfoSink.cpp
     MachineIndependent/Initialize.cpp
     MachineIndependent/IntermTraverse.cpp
     MachineIndependent/Intermediate.cpp
+    MachineIndependent/ParseContextBase.cpp
     MachineIndependent/ParseHelper.cpp
     MachineIndependent/PoolAlloc.cpp
     MachineIndependent/RemoveTree.cpp
@@ -54,6 +56,8 @@ set(HEADERS
     MachineIndependent/glslang_tab.cpp.h
     MachineIndependent/gl_types.h
     MachineIndependent/Initialize.h
+    MachineIndependent/iomapper.h
+    MachineIndependent/LiveTraverser.h
     MachineIndependent/localintermediate.h
     MachineIndependent/ParseHelper.h
     MachineIndependent/reflection.h
@@ -77,7 +81,11 @@ set(HEADERS
 # set(BISON_GLSLParser_OUTPUT_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/MachineIndependent/glslang_tab.cpp)
 
 add_library(glslang STATIC ${BISON_GLSLParser_OUTPUT_SOURCE} ${SOURCES} ${HEADERS})
-set_property(TARGET glslang PROPERTY FOLDER glslang)
+set_property(TARGET glslang PROPERTY FOLDER glslang POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(glslang OGLCompiler OSDependent)
+if(ENABLE_HLSL)
+    target_link_libraries(glslang HLSL)
+endif()
 
 if(WIN32)
     source_group("Public" REGULAR_EXPRESSION "Public/*")
@@ -87,5 +95,10 @@ if(WIN32)
     source_group("MachineIndependent\\Preprocessor" REGULAR_EXPRESSION "MachineIndependent/preprocessor/*")
 endif(WIN32)
 
-install(TARGETS glslang 
-        ARCHIVE DESTINATION lib)
+install(TARGETS glslang
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+foreach(file ${HEADERS})
+    get_filename_component(dir ${file} DIRECTORY)
+    install(FILES ${file} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/glslang/${dir})
+endforeach()
