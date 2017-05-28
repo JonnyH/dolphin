@@ -166,6 +166,7 @@ public final class EmulationActivity extends AppCompatActivity
 
 			// Get a handle to the Window containing the UI.
 			mDecorView = getWindow().getDecorView();
+			getWindow().setSustainedPerformanceMode(true);
 
 			// Set these options now so that the SurfaceView the game renders into is the right size.
 			mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |

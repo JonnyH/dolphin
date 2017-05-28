@@ -17,7 +17,7 @@ android {
     defaultConfig {
         // TODO If this is ever modified, change application_id in strings.xml
         applicationId "org.dolphinemu.dolphinemu"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 25
 
         // TODO This should be set to the Buildbot build number for release builds, and be "1" for debug builds.
