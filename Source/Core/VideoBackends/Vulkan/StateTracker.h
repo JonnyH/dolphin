@@ -47,7 +47,8 @@ public:
 
   void SetRenderPass(VkRenderPass load_render_pass, VkRenderPass clear_render_pass);
 
-  void SetFramebuffer(VkFramebuffer framebuffer, const VkRect2D& render_area);
+  void SetFramebuffer(VkFramebuffer loadFramebuffer, VkFramebuffer clearFramebuffer,
+                      const VkRect2D& render_area);
 
   void SetVertexFormat(const VertexFormat* vertex_format);
 
@@ -227,7 +228,8 @@ private:
   // uniform buffers
   std::unique_ptr<StreamBuffer> m_uniform_stream_buffer;
 
-  VkFramebuffer m_framebuffer = VK_NULL_HANDLE;
+  VkFramebuffer m_load_framebuffer = VK_NULL_HANDLE;
+  VkFramebuffer m_clear_framebuffer = VK_NULL_HANDLE;
   VkRenderPass m_load_render_pass = VK_NULL_HANDLE;
   VkRenderPass m_clear_render_pass = VK_NULL_HANDLE;
   VkRenderPass m_current_render_pass = VK_NULL_HANDLE;

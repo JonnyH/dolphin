@@ -1213,7 +1213,8 @@ void Renderer::BindEFBToStateTracker()
       FramebufferManager::GetInstance()->GetEFBLoadRenderPass(),
       FramebufferManager::GetInstance()->GetEFBClearRenderPass());
   StateTracker::GetInstance()->SetFramebuffer(
-      FramebufferManager::GetInstance()->GetEFBFramebuffer(), framebuffer_size);
+      FramebufferManager::GetInstance()->GetEFBLoadFramebuffer(),
+      FramebufferManager::GetInstance()->GetEFBClearFramebuffer(), framebuffer_size);
 
   // Update rasterization state with MSAA info
   RasterizationState rs_state = {};

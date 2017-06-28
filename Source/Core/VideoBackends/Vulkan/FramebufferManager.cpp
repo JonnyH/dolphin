@@ -301,27 +301,42 @@ bool FramebufferManager::CreateEFBFramebuffer()
       m_efb_color_texture->GetView(), m_efb_depth_texture->GetView(),
   };
 
-  VkFramebufferCreateInfo framebuffer_info = {VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-                                              nullptr,
-                                              0,
-                                              m_efb_load_render_pass,
-                                              static_cast<u32>(ArraySize(framebuffer_attachments)),
-                                              framebuffer_attachments,
-                                              m_efb_width,
-                                              m_efb_height,
-                                              m_efb_layers};
+  VkFramebufferCreateInfo load_framebuffer_info = {
+      VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+      nullptr,
+      0,
+      m_efb_load_render_pass,
+      static_cast<u32>(ArraySize(framebuffer_attachments)),
+      framebuffer_attachments,
+      m_efb_width,
+      m_efb_height,
+      m_efb_layers};
 
-  VkResult res = vkCreateFramebuffer(g_vulkan_context->GetDevice(), &framebuffer_info, nullptr,
-                                     &m_efb_framebuffer);
+  VkResult res = vkCreateFramebuffer(g_vulkan_context->GetDevice(), &load_framebuffer_info, nullptr,
+                                     &m_efb_load_framebuffer);
   if (res != VK_SUCCESS)
   {
     LOG_VULKAN_ERROR(res, "vkCreateFramebuffer failed: ");
     return false;
   }
 
+  VkFramebufferCreateInfo clear_framebuffer_info = {
+      VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+      nullptr,
+      0,
+      m_efb_clear_render_pass,
+      static_cast<u32>(ArraySize(framebuffer_attachments)),
+      framebuffer_attachments,
+      m_efb_width,
+      m_efb_height,
+      m_efb_layers};
+
+  res = vkCreateFramebuffer(g_vulkan_context->GetDevice(), &clear_framebuffer_info, nullptr,
+                            &m_efb_clear_framebuffer);
+
   // Create second framebuffer for format conversions
   framebuffer_attachments[0] = m_efb_convert_color_texture->GetView();
-  res = vkCreateFramebuffer(g_vulkan_context->GetDevice(), &framebuffer_info, nullptr,
+  res = vkCreateFramebuffer(g_vulkan_context->GetDevice(), &load_framebuffer_info, nullptr,
                             &m_efb_convert_framebuffer);
   if (res != VK_SUCCESS)
   {
@@ -358,10 +373,16 @@ bool FramebufferManager::CreateEFBFramebuffer()
 
 void FramebufferManager::DestroyEFBFramebuffer()
 {
-  if (m_efb_framebuffer != VK_NULL_HANDLE)
+  if (m_efb_load_framebuffer != VK_NULL_HANDLE)
   {
-    vkDestroyFramebuffer(g_vulkan_context->GetDevice(), m_efb_framebuffer, nullptr);
-    m_efb_framebuffer = VK_NULL_HANDLE;
+    vkDestroyFramebuffer(g_vulkan_context->GetDevice(), m_efb_load_framebuffer, nullptr);
+    m_efb_load_framebuffer = VK_NULL_HANDLE;
+  }
+
+  if (m_efb_clear_framebuffer != VK_NULL_HANDLE)
+  {
+    vkDestroyFramebuffer(g_vulkan_context->GetDevice(), m_efb_clear_framebuffer, nullptr);
+    m_efb_clear_framebuffer = VK_NULL_HANDLE;
   }
 
   if (m_efb_convert_framebuffer != VK_NULL_HANDLE)
@@ -452,7 +473,7 @@ void FramebufferManager::ReinterpretPixelData(int convtype)
 
   // Swap EFB texture pointers
   std::swap(m_efb_color_texture, m_efb_convert_color_texture);
-  std::swap(m_efb_framebuffer, m_efb_convert_framebuffer);
+  std::swap(m_efb_load_framebuffer, m_efb_convert_framebuffer);
 }
 
 Texture2D* FramebufferManager::ResolveEFBColorTexture(const VkRect2D& region)

@@ -239,11 +239,13 @@ void StateTracker::SetRenderPass(VkRenderPass load_render_pass, VkRenderPass cle
   m_clear_render_pass = clear_render_pass;
 }
 
-void StateTracker::SetFramebuffer(VkFramebuffer framebuffer, const VkRect2D& render_area)
+void StateTracker::SetFramebuffer(VkFramebuffer loadFramebuffer, VkFramebuffer clearFramebuffer,
+                                  const VkRect2D& render_area)
 {
   // Should not be changed within a render pass.
   _assert_(!InRenderPass());
-  m_framebuffer = framebuffer;
+  m_load_framebuffer = loadFramebuffer;
+  m_clear_framebuffer = clearFramebuffer;
   m_framebuffer_size = render_area;
 }
 
@@ -621,7 +623,7 @@ void StateTracker::BeginRenderPass()
   VkRenderPassBeginInfo begin_info = {VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
                                       nullptr,
                                       m_current_render_pass,
-                                      m_framebuffer,
+                                      m_load_framebuffer,
                                       m_framebuffer_render_area,
                                       0,
                                       nullptr};
@@ -649,7 +651,7 @@ void StateTracker::BeginClearRenderPass(const VkRect2D& area, const VkClearValue
   VkRenderPassBeginInfo begin_info = {VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
                                       nullptr,
                                       m_current_render_pass,
-                                      m_framebuffer,
+                                      m_clear_framebuffer,
                                       m_framebuffer_render_area,
                                       2,
                                       clear_values};

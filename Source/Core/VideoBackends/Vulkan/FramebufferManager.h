@@ -40,7 +40,8 @@ public:
   VkSampleCountFlagBits GetEFBSamples() const { return m_efb_samples; }
   Texture2D* GetEFBColorTexture() const { return m_efb_color_texture.get(); }
   Texture2D* GetEFBDepthTexture() const { return m_efb_depth_texture.get(); }
-  VkFramebuffer GetEFBFramebuffer() const { return m_efb_framebuffer; }
+  VkFramebuffer GetEFBLoadFramebuffer() const { return m_efb_load_framebuffer; }
+  VkFramebuffer GetEFBClearFramebuffer() const { return m_efb_clear_framebuffer; }
   std::pair<u32, u32> GetTargetSize() const override;
 
   std::unique_ptr<XFBSourceBase> CreateXFBSource(unsigned int target_width,
@@ -134,7 +135,8 @@ private:
   std::unique_ptr<Texture2D> m_efb_depth_texture;
   std::unique_ptr<Texture2D> m_efb_resolve_color_texture;
   std::unique_ptr<Texture2D> m_efb_resolve_depth_texture;
-  VkFramebuffer m_efb_framebuffer = VK_NULL_HANDLE;
+  VkFramebuffer m_efb_load_framebuffer = VK_NULL_HANDLE;
+  VkFramebuffer m_efb_clear_framebuffer = VK_NULL_HANDLE;
   VkFramebuffer m_efb_convert_framebuffer = VK_NULL_HANDLE;
   VkFramebuffer m_depth_resolve_framebuffer = VK_NULL_HANDLE;
 
