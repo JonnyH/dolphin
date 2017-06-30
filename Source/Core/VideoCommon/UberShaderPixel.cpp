@@ -937,28 +937,32 @@ ShaderCode GenPixelShader(APIType ApiType, const pixel_ubershader_uid_data* uid_
         "  depth = depth_value;\n");
   }
 
-  out.Write("  // Alpha Test\n"
-            "  if (bpmem_alphaTest != 0u) {\n"
-            "    bool comp0 = alphaCompare(TevResult.a, " I_ALPHA ".r, %s);\n",
-            BitfieldExtract("bpmem_alphaTest", AlphaTest().comp0).c_str());
-  out.Write("    bool comp1 = alphaCompare(TevResult.a, " I_ALPHA ".g, %s);\n",
-            BitfieldExtract("bpmem_alphaTest", AlphaTest().comp1).c_str());
-  out.Write("\n"
-            "    // These if statements are written weirdly to work around intel and qualcom bugs "
-            "with handling booleans.\n"
-            "    switch (%s) {\n",
-            BitfieldExtract("bpmem_alphaTest", AlphaTest().logic).c_str());
-  out.Write("    case 0u: // AND\n"
-            "      if (comp0 && comp1) break; else discard; break;\n"
-            "    case 1u: // OR\n"
-            "      if (comp0 || comp1) break; else discard; break;\n"
-            "    case 2u: // XOR\n"
-            "      if (comp0 != comp1) break; else discard; break;\n"
-            "    case 3u: // XNOR\n"
-            "      if (comp0 == comp1) break; else discard; break;\n"
-            "    }\n"
-            "  }\n"
-            "\n");
+  if (!DriverDetails::HasBug(DriverDetails::BUG_DISCARD_MUST_BE_LAST))
+  {
+    out.Write("  // Alpha Test\n"
+              "  if (bpmem_alphaTest != 0u) {\n"
+              "    bool comp0 = alphaCompare(TevResult.a, " I_ALPHA ".r, %s);\n",
+              BitfieldExtract("bpmem_alphaTest", AlphaTest().comp0).c_str());
+    out.Write("    bool comp1 = alphaCompare(TevResult.a, " I_ALPHA ".g, %s);\n",
+              BitfieldExtract("bpmem_alphaTest", AlphaTest().comp1).c_str());
+    out.Write(
+        "\n"
+        "    // These if statements are written weirdly to work around intel and qualcom bugs "
+        "with handling booleans.\n"
+        "    switch (%s) {\n",
+        BitfieldExtract("bpmem_alphaTest", AlphaTest().logic).c_str());
+    out.Write("    case 0u: // AND\n"
+              "      if (comp0 && comp1) break; else discard; break;\n"
+              "    case 1u: // OR\n"
+              "      if (comp0 || comp1) break; else discard; break;\n"
+              "    case 2u: // XOR\n"
+              "      if (comp0 != comp1) break; else discard; break;\n"
+              "    case 3u: // XNOR\n"
+              "      if (comp0 == comp1) break; else discard; break;\n"
+              "    }\n"
+              "  }\n"
+              "\n");
+  }
 
   // =========
   // Dithering
@@ -1052,6 +1056,33 @@ ShaderCode GenPixelShader(APIType ApiType, const pixel_ubershader_uid_data* uid_
               "  // Colors will be blended against the alpha from ocol1 and\n"
               "  // the alpha from ocol0 will be written to the framebuffer.\n"
               "  ocol1 = float4(0.0, 0.0, 0.0, float(TevResult.a) / 255.0);\n");
+  }
+
+  if (DriverDetails::HasBug(DriverDetails::BUG_DISCARD_MUST_BE_LAST))
+  {
+    out.Write("  // Alpha Test\n"
+              "  if (bpmem_alphaTest != 0u) {\n"
+              "    bool comp0 = alphaCompare(TevResult.a, " I_ALPHA ".r, %s);\n",
+              BitfieldExtract("bpmem_alphaTest", AlphaTest().comp0).c_str());
+    out.Write("    bool comp1 = alphaCompare(TevResult.a, " I_ALPHA ".g, %s);\n",
+              BitfieldExtract("bpmem_alphaTest", AlphaTest().comp1).c_str());
+    out.Write(
+        "\n"
+        "    // These if statements are written weirdly to work around intel and qualcom bugs "
+        "with handling booleans.\n"
+        "    switch (%s) {\n",
+        BitfieldExtract("bpmem_alphaTest", AlphaTest().logic).c_str());
+    out.Write("    case 0u: // AND\n"
+              "      if (comp0 && comp1) break; else discard; break;\n"
+              "    case 1u: // OR\n"
+              "      if (comp0 || comp1) break; else discard; break;\n"
+              "    case 2u: // XOR\n"
+              "      if (comp0 != comp1) break; else discard; break;\n"
+              "    case 3u: // XNOR\n"
+              "      if (comp0 == comp1) break; else discard; break;\n"
+              "    }\n"
+              "  }\n"
+              "\n");
   }
 
   if (bounding_box)

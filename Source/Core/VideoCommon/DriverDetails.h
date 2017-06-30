@@ -247,6 +247,14 @@ enum Bug
   // fail compilation with no useful diagnostic log. This can be worked around by storing
   // the negated value to a temporary variable then using that in the bitwise op.
   BUG_BROKEN_BITWISE_OP_NEGATION,
+  // BUG: ImgTec GLSL shader compiler doesn't like it if you discard before an input register index
+  // operation
+  // Started version: 1.0
+  // Ended version: 1.10
+  // This moves the alpha-discard test to the end of the shader, as that's easier than trying to
+  // guarantee all possible register indexing ops have been completed
+  BUG_DISCARD_MUST_BE_LAST,
+
 };
 
 // Initializes our internal vendor, device family, and driver version
