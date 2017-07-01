@@ -88,6 +88,7 @@ const ConfigInfo<int> GFX_SW_DRAW_START{{System::GFX, "Settings", "SWDrawStart"}
 const ConfigInfo<int> GFX_SW_DRAW_END{{System::GFX, "Settings", "SWDrawEnd"}, 100000};
 
 const ConfigInfo<bool> GFX_PREFER_GLES{{System::GFX, "Settings", "PreferGLES"}, false};
+const ConfigInfo<u32> GFX_GL_VERSION_OVERRIDE{{System::GFX, "Settings", "GLVersionOverride"}, 0};
 
 // Graphics.Enhancements
 

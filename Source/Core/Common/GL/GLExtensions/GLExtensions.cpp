@@ -8,6 +8,7 @@
 #include "Common/GL/GLExtensions/GLExtensions.h"
 #include "Common/GL/GLInterfaceBase.h"
 #include "Common/Logging/Log.h"
+#include "Core/Config/GraphicsSettings.h"
 
 #if defined(__linux__) || defined(__APPLE__)
 #include <dlfcn.h>
@@ -2147,6 +2148,10 @@ static void InitVersion()
     _GLVersion = major * 100 + minor * 10;
   else
     _GLVersion = 210;
+
+  u32 GLVersionOverride = Config::Get(Config::GFX_GL_VERSION_OVERRIDE);
+  if (GLVersionOverride != 0)
+    _GLVersion = std::min(GLVersionOverride, _GLVersion);
 }
 
 static void* GetFuncAddress(const std::string& name, void** func)
