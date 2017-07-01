@@ -9,6 +9,7 @@
 
 #include "Common/GL/GLInterface/EGL.h"
 #include "Common/Logging/Log.h"
+#include "Core/Config/GraphicsSettings.h"
 
 #ifndef EGL_KHR_create_context
 #define EGL_KHR_create_context 1
@@ -47,6 +48,7 @@ void cInterfaceEGL::DetectMode()
 {
   if (s_opengl_mode != GLInterfaceMode::MODE_DETECT)
     return;
+  bool preferGLES = Config::Get(Config::GFX_PREFER_GLES);
 
   EGLint num_configs;
   bool supportsGL = false, supportsGLES2 = false, supportsGLES3 = false;
@@ -98,12 +100,24 @@ void cInterfaceEGL::DetectMode()
     delete[] config;
   }
 
-  if (supportsGL)
-    s_opengl_mode = GLInterfaceMode::MODE_OPENGL;
-  else if (supportsGLES3)
-    s_opengl_mode = GLInterfaceMode::MODE_OPENGLES3;
-  else if (supportsGLES2)
-    s_opengl_mode = GLInterfaceMode::MODE_OPENGLES2;
+  if (preferGLES)
+  {
+    if (supportsGLES3)
+      s_opengl_mode = GLInterfaceMode::MODE_OPENGLES3;
+    else if (supportsGLES2)
+      s_opengl_mode = GLInterfaceMode::MODE_OPENGLES2;
+    else if (supportsGL)
+      s_opengl_mode = GLInterfaceMode::MODE_OPENGL;
+  }
+  else
+  {
+    if (supportsGL)
+      s_opengl_mode = GLInterfaceMode::MODE_OPENGL;
+    else if (supportsGLES3)
+      s_opengl_mode = GLInterfaceMode::MODE_OPENGLES3;
+    else if (supportsGLES2)
+      s_opengl_mode = GLInterfaceMode::MODE_OPENGLES2;
+  }
 
   if (s_opengl_mode == GLInterfaceMode::MODE_DETECT)  // Errored before we found a mode
     s_opengl_mode = GLInterfaceMode::MODE_OPENGL;     // Fall back to OpenGL
