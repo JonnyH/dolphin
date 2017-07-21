@@ -544,12 +544,12 @@ ShaderCode GeneratePixelShaderCode(APIType ApiType, const pixel_shader_uid_data*
       if (g_ActiveConfig.backend_info.bSupportsInOutFramebufferFetch)
       {
         out.Write("FRAGMENT_OUTPUT_LOCATION(0) inout vec4 fb_ocol;\n");
-        out.Write("#define fb_value fb_ocol");
+        out.Write("#define fb_value fb_ocol\n");
       }
       else
       {
         out.Write("FRAGMENT_OUTPUT_LOCATION(0) out vec4 fb_ocol;\n");
-        out.Write("#define fb_value gl_LastFragColorARM");
+        out.Write("#define fb_value gl_LastFragColorARM\n");
       }
     }
     else

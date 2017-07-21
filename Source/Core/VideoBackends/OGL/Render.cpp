@@ -421,7 +421,7 @@ Renderer::Renderer()
     g_Config.backend_info.bSupportsFramebufferFetch = true;
     g_Config.backend_info.bSupportsInOutFramebufferFetch = true;
   }
-  else if (GLExtensions::Supports("GL_EXT_shader_framebuffer_fetch"))
+  else if (GLExtensions::Supports("GL_ARM_shader_framebuffer_fetch"))
   {
     g_Config.backend_info.bSupportsFramebufferFetch = true;
     g_Config.backend_info.bSupportsInOutFramebufferFetch = false;
