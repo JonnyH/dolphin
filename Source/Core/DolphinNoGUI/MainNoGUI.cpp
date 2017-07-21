@@ -36,6 +36,8 @@
 #include "VideoCommon/RenderBase.h"
 #include "VideoCommon/VideoBackendBase.h"
 
+#include "Core/FifoPlayer/FifoRecorder.h"
+
 static bool rendererHasFocus = true;
 static bool rendererIsFullscreen = false;
 static Common::Flag s_running{true};
@@ -373,6 +375,8 @@ static Platform* GetPlatform()
   return nullptr;
 }
 
+std::string out_fifo;
+
 int main(int argc, char* argv[])
 {
   auto parser = CommandLineParse::CreateParser(CommandLineParse::ParserOptions::OmitGUIOptions);
@@ -401,6 +405,11 @@ int main(int argc, char* argv[])
     user_directory = static_cast<const char*>(options.get("user"));
   }
 
+  if (options.is_set("fifo"))
+  {
+    out_fifo = static_cast<const char*>(options.get("fifo"));
+  }
+
   platform = GetPlatform();
   if (!platform)
   {
@@ -421,6 +430,18 @@ int main(int argc, char* argv[])
   sa.sa_flags = SA_RESETHAND;
   sigaction(SIGINT, &sa, nullptr);
   sigaction(SIGTERM, &sa, nullptr);
+
+  if (!out_fifo.empty())
+  {
+    FifoRecorder& recorder = FifoRecorder::GetInstance();
+    recorder.StartRecording(20, []() -> void {
+      FifoDataFile* file = FifoRecorder::GetInstance().GetRecordedFile();
+      if (file)
+      {
+        file->Save(out_fifo);
+      }
+    });
+  }
 
   DolphinAnalytics::Instance()->ReportDolphinStart("nogui");
 
