@@ -98,6 +98,7 @@ const ConfigInfo<int> GFX_SW_DRAW_START{{System::GFX, "Settings", "SWDrawStart"}
 const ConfigInfo<int> GFX_SW_DRAW_END{{System::GFX, "Settings", "SWDrawEnd"}, 100000};
 
 const ConfigInfo<bool> GFX_PREFER_GLES{{System::GFX, "Settings", "PreferGLES"}, false};
+const ConfigInfo<bool> GFX_DUMP_SHADER_SOURCE{{System::GFX, "Settings", "DumpShaders"}, false};
 
 // Graphics.Enhancements
 

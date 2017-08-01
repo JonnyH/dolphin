@@ -17,6 +17,7 @@
 #include "Common/StringUtil.h"
 #include "Common/Timer.h"
 
+#include "Core/Config/GraphicsSettings.h"
 #include "Core/ConfigManager.h"
 #include "Core/Host.h"
 
@@ -481,7 +482,8 @@ bool ProgramShaderCache::CheckShaderCompileResult(GLuint id, GLenum type, const 
   GLsizei length = 0;
   glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 
-  if (compileStatus != GL_TRUE || (length > 1 && DEBUG_GLSL))
+  if (compileStatus != GL_TRUE || (length > 1 && DEBUG_GLSL) ||
+      Config::Get(Config::GFX_DUMP_SHADER_SOURCE))
   {
     std::string info_log;
     info_log.resize(length);
@@ -506,8 +508,14 @@ bool ProgramShaderCache::CheckShaderCompileResult(GLuint id, GLenum type, const 
 
     ERROR_LOG(VIDEO, "%s Shader info log:\n%s", prefix, info_log.c_str());
 
-    std::string filename = StringFromFormat(
-        "%sbad_%s_%04i.txt", File::GetUserPath(D_DUMP_IDX).c_str(), prefix, num_failures++);
+    const char* filenameFormat;
+    if (compileStatus != GL_TRUE)
+      filenameFormat = "%sbad_%s_%04i.txt";
+    else
+      filenameFormat = "%sdump_%s_%04i.txt";
+
+    std::string filename = StringFromFormat(filenameFormat, File::GetUserPath(D_DUMP_IDX).c_str(),
+                                            prefix, num_failures++);
     std::ofstream file;
     File::OpenFStream(file, filename, std::ios_base::out);
     file << s_glsl_header << code << info_log;

@@ -74,6 +74,7 @@ extern const ConfigInfo<int> GFX_SW_DRAW_START;
 extern const ConfigInfo<int> GFX_SW_DRAW_END;
 
 extern const ConfigInfo<bool> GFX_PREFER_GLES;
+extern const ConfigInfo<bool> GFX_DUMP_SHADER_SOURCE;
 
 // Graphics.Enhancements
 
