@@ -72,6 +72,11 @@ public:
   NetPlayServer* GetNetPlayServer();
   void ResetNetPlayServer(NetPlayServer* server = nullptr);
 
+  // FIFO
+  void TriggerFIFOFrameWritten();
+  void TriggerFIFOLogLoaded();
+  void TriggerFIFORecordingDone();
+
   // Other
   GameListModel* GetGameListModel() const;
 
@@ -84,6 +89,9 @@ signals:
   void NANDRefresh();
   void LogVisibilityChanged(bool visible);
   void LogConfigVisibilityChanged(bool visible);
+  void FIFOFrameWritten();
+  void FIFOLogLoaded();
+  void FIFORecordingDone();
 
 private:
   std::unique_ptr<NetPlayClient> m_client;

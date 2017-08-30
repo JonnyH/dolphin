@@ -44,6 +44,7 @@
 #include "DolphinQt2/Config/LoggerWidget.h"
 #include "DolphinQt2/Config/Mapping/MappingWindow.h"
 #include "DolphinQt2/Config/SettingsWindow.h"
+#include "DolphinQt2/FIFOWindow.h"
 #include "DolphinQt2/Host.h"
 #include "DolphinQt2/HotkeyScheduler.h"
 #include "DolphinQt2/MainWindow.h"
@@ -148,11 +149,17 @@ void MainWindow::CreateComponents()
   m_settings_window = new SettingsWindow(this);
   m_hotkey_window = new MappingWindow(this, 0);
   m_logger_widget = new LoggerWidget(this);
+  m_fifo_window = new FIFOWindow(this);
 
   connect(this, &MainWindow::EmulationStarted, m_settings_window,
           &SettingsWindow::EmulationStarted);
   connect(this, &MainWindow::EmulationStopped, m_settings_window,
           &SettingsWindow::EmulationStopped);
+
+  connect(this, &MainWindow::EmulationStarted, m_fifo_window, &FIFOWindow::EmulationStarted);
+  connect(this, &MainWindow::EmulationStopped, m_fifo_window, &FIFOWindow::EmulationStopped);
+
+  connect(m_fifo_window, &FIFOWindow::LoadFIFO, this, &MainWindow::StartGame);
 
 #if defined(HAVE_XRANDR) && HAVE_XRANDR
   m_graphics_window = new GraphicsWindow(
@@ -210,6 +217,7 @@ void MainWindow::ConnectMenuBar()
   connect(m_menu_bar, &MenuBar::PerformOnlineUpdate, this, &MainWindow::PerformOnlineUpdate);
   connect(m_menu_bar, &MenuBar::BootWiiSystemMenu, this, &MainWindow::BootWiiSystemMenu);
   connect(m_menu_bar, &MenuBar::StartNetPlay, this, &MainWindow::ShowNetPlaySetupDialog);
+  connect(m_menu_bar, &MenuBar::ShowFIFOPlayer, this, &MainWindow::ShowFIFOPlayer);
 
   // View
   connect(m_menu_bar, &MenuBar::ShowList, m_game_list, &GameList::SetListView);
@@ -573,6 +581,13 @@ void MainWindow::ShowNetPlaySetupDialog()
   m_netplay_setup_dialog->show();
   m_netplay_setup_dialog->raise();
   m_netplay_setup_dialog->activateWindow();
+}
+
+void MainWindow::ShowFIFOPlayer()
+{
+  m_fifo_window->show();
+  m_fifo_window->raise();
+  m_fifo_window->activateWindow();
 }
 
 void MainWindow::StateLoad()

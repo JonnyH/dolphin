@@ -198,3 +198,18 @@ void Settings::ResetNetPlayServer(NetPlayServer* server)
 {
   m_server.reset(server);
 }
+
+void Settings::TriggerFIFOFrameWritten()
+{
+  emit FIFOFrameWritten();
+}
+
+void Settings::TriggerFIFOLogLoaded()
+{
+  emit FIFOLogLoaded();
+}
+
+void Settings::TriggerFIFORecordingDone()
+{
+  emit FIFORecordingDone();
+}

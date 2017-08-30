@@ -12,6 +12,7 @@ set(CMAKE_AUTOMOC ON)
 
 set(SRCS
   AboutDialog.cpp
+  FIFOWindow.cpp
   HotkeyScheduler.cpp
   Host.cpp
   InDevelopmentWarning.cpp

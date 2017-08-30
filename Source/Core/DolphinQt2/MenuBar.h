@@ -73,6 +73,9 @@ signals:
   void GameListPlatformVisibilityToggled(const QString& row, bool visible);
   void GameListRegionVisibilityToggled(const QString& row, bool visible);
 
+  // Tools
+  void ShowFIFOPlayer();
+
   void ShowAboutDialog();
 
 private:
