@@ -87,7 +87,7 @@ private:
   void InitCoreCallbacks();
 
   void StartGame(const QString& path);
-  void StartGame(std::unique_ptr<BootParameters>&& parameters);
+  void StartGameParam(std::unique_ptr<BootParameters>&& parameters);
   void ShowRenderWidget();
   void HideRenderWidget();
 

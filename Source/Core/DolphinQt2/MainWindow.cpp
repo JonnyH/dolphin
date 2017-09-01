@@ -363,7 +363,7 @@ void MainWindow::OnStopComplete()
   // If the current emulation prevented the booting of another, do that now
   if (m_pending_boot != nullptr)
   {
-    StartGame(std::move(m_pending_boot));
+    StartGameParam(std::move(m_pending_boot));
     m_pending_boot.reset();
   }
 }
@@ -463,10 +463,10 @@ void MainWindow::ScreenShot()
 
 void MainWindow::StartGame(const QString& path)
 {
-  StartGame(BootParameters::GenerateFromFile(path.toStdString()));
+  StartGameParam(BootParameters::GenerateFromFile(path.toStdString()));
 }
 
-void MainWindow::StartGame(std::unique_ptr<BootParameters>&& parameters)
+void MainWindow::StartGameParam(std::unique_ptr<BootParameters>&& parameters)
 {
   // If we're running, only start a new game once we've stopped the last.
   if (Core::GetState() != Core::State::Uninitialized)
@@ -851,7 +851,7 @@ QSize MainWindow::sizeHint() const
 
 void MainWindow::OnBootGameCubeIPL(DiscIO::Region region)
 {
-  StartGame(std::make_unique<BootParameters>(BootParameters::IPL{region}));
+  StartGameParam(std::make_unique<BootParameters>(BootParameters::IPL{region}));
 }
 
 void MainWindow::OnImportNANDBackup()
@@ -879,13 +879,14 @@ void MainWindow::OnImportNANDBackup()
   dialog->setLabelText(tr("Importing NAND backup"));
   dialog->setCancelButton(nullptr);
 
-  auto beginning = QDateTime::currentDateTime().toSecsSinceEpoch();
+  auto beginning = QDateTime::currentDateTime().toMSecsSinceEpoch() / 1000;
 
   auto result = std::async(std::launch::async, [&] {
     DiscIO::NANDImporter().ImportNANDBin(file.toStdString(), [&dialog, beginning] {
       QueueOnObject(dialog, [&dialog, beginning] {
-        dialog->setLabelText(tr("Importing NAND backup\n Time elapsed: %1s")
-                                 .arg(QDateTime::currentDateTime().toSecsSinceEpoch() - beginning));
+        dialog->setLabelText(
+            tr("Importing NAND backup\n Time elapsed: %1s")
+                .arg((QDateTime::currentDateTime().toMSecsSinceEpoch() / 1000) - beginning));
       });
     });
     QueueOnObject(dialog, [dialog] { dialog->close(); });
