@@ -165,6 +165,12 @@ void JitArm64::addix(UGeckoInstruction inst)
     {
       gpr.SetImmediate(d, gpr.GetImm(a) + imm);
     }
+    // addi rx ry #0 is the same as MOV
+    else if (inst.SIMM_16 == 0 && a != d)
+    {
+      gpr.BindToRegister(d, false);
+      MOV(gpr.R(d), gpr.R(a));
+    }
     else
     {
       gpr.BindToRegister(d, d == a);
