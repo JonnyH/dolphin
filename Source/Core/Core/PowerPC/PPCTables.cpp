@@ -190,16 +190,24 @@ void PrintInstructionFallbackCounts()
 void LogCompiledInstructions()
 {
   static unsigned int time = 0;
+  u64 total = 0;
 
   File::IOFile f(StringFromFormat("%sinst_log%i.txt", File::GetUserPath(D_LOGS_IDX).c_str(), time),
                  "w");
   for (size_t i = 0; i < m_numInstructions; i++)
   {
     GekkoOPInfo* pInst = m_allInstructions[i];
+    total += pInst->runCount;
+  }
+  for (size_t i = 0; i < m_numInstructions; i++)
+  {
+    GekkoOPInfo* pInst = m_allInstructions[i];
     if (pInst->compileCount > 0)
     {
-      fprintf(f.GetHandle(), "%s\t%i\t%" PRId64 "\t%08x\n", pInst->opname, pInst->compileCount,
-              pInst->runCount, pInst->lastUse);
+      float percentOfAllInsns = ((double)pInst->runCount * 100.0) / total;
+      fprintf(f.GetHandle(), "%s\t%i\t%" PRId64 "\t%" PRId64 "\t%08x\t%.6f\n", pInst->opname,
+              pInst->compileCount, pInst->runCount, pInst->fallbackCount, pInst->lastUse,
+              percentOfAllInsns);
     }
   }
 
@@ -209,8 +217,8 @@ void LogCompiledInstructions()
     GekkoOPInfo* pInst = m_allInstructions[i];
     if (pInst->compileCount == 0)
     {
-      fprintf(f.GetHandle(), "%s\t%i\t%" PRId64 "\n", pInst->opname, pInst->compileCount,
-              pInst->runCount);
+      fprintf(f.GetHandle(), "%s\t%i\t%" PRId64 "\t%" PRId64 "\n", pInst->opname,
+              pInst->compileCount, pInst->runCount, pInst->fallbackCount);
     }
   }
 
