@@ -489,6 +489,22 @@ void JitArm64::DumpCode(const u8* start, const u8* end)
   WARN_LOG(DYNA_REC, "Code dump from %p to %p:\n%s", start, end, output.c_str());
 }
 
+void JitArm64::IncRunCount(UGeckoInstruction inst)
+{
+  GekkoOPInfo* info = GetOpInfo(inst);
+  if (info)
+  {
+    auto base = gpr.GetReg();
+    auto value = gpr.GetReg();
+    MOVP2R(EncodeRegTo64(base), info);
+    LDR(INDEX_UNSIGNED, EncodeRegTo64(value), EncodeRegTo64(base), offsetof(GekkoOPInfo, runCount));
+    ADD(EncodeRegTo64(value), EncodeRegTo64(value), 1);
+    STR(INDEX_SIGNED, EncodeRegTo64(value), EncodeRegTo64(base), offsetof(GekkoOPInfo, runCount));
+    gpr.Unlock(value);
+    gpr.Unlock(base);
+  }
+}
+
 void JitArm64::BeginTimeProfile(JitBlock* b)
 {
   MOVP2R(X0, &b->profile_data);

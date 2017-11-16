@@ -215,6 +215,7 @@ private:
   // Profiling
   void BeginTimeProfile(JitBlock* b);
   void EndTimeProfile(JitBlock* b);
+  void IncRunCount(UGeckoInstruction inst);
 
   // Exits
   void WriteExit(u32 destination, bool LK = false, u32 exit_address_after_return = 0);

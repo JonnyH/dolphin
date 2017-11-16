@@ -64,6 +64,8 @@ public:
   void Run() override;
   void SingleStep() override;
 
+  void IncRunCount(UGeckoInstruction){};
+
   // Utilities for use by opcodes
 
   void FakeBLCall(u32 after);
