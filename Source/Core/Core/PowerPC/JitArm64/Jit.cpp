@@ -130,10 +130,18 @@ void JitArm64::Shutdown()
   FreeCodeSpace();
   blocks.Shutdown();
   FreeStack();
+  PPCTables::PrintInstructionRunCounts();
+  PPCTables::PrintInstructionFallbackCounts();
+  PPCTables::LogCompiledInstructions();
 }
 
 void JitArm64::FallBackToInterpreter(UGeckoInstruction inst)
 {
+  GekkoOPInfo* info = GetOpInfo(inst);
+  if (info)
+  {
+    info->fallbackCount++;
+  }
   FlushCarry();
   gpr.Flush(FlushMode::FLUSH_ALL, js.op);
   fpr.Flush(FlushMode::FLUSH_ALL, js.op);

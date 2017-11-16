@@ -165,6 +165,28 @@ void PrintInstructionRunCounts()
   }
 }
 
+void PrintInstructionFallbackCounts()
+{
+  typedef std::pair<const char*, u64> OpInfo;
+  std::vector<OpInfo> temp;
+  temp.reserve(m_numInstructions);
+  for (size_t i = 0; i < m_numInstructions; ++i)
+  {
+    GekkoOPInfo* pInst = m_allInstructions[i];
+    temp.emplace_back(pInst->opname, pInst->fallbackCount);
+  }
+  std::sort(temp.begin(), temp.end(),
+            [](const OpInfo& a, const OpInfo& b) { return a.second > b.second; });
+
+  for (auto& inst : temp)
+  {
+    if (inst.second == 0)
+      break;
+
+    DEBUG_LOG(POWERPC, "fallback %s : %" PRIu64, inst.first, inst.second);
+  }
+}
+
 void LogCompiledInstructions()
 {
   static unsigned int time = 0;

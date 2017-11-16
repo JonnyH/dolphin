@@ -94,6 +94,7 @@ struct GekkoOPInfo
   u64 runCount;
   int compileCount;
   u32 lastUse;
+  u64 fallbackCount = 0;
 };
 extern std::array<GekkoOPInfo*, 64> m_infoTable;
 extern std::array<GekkoOPInfo*, 1024> m_infoTable4;
@@ -115,6 +116,7 @@ bool UsesFPU(UGeckoInstruction _inst);
 
 void CountInstruction(UGeckoInstruction _inst);
 void PrintInstructionRunCounts();
+void PrintInstructionFallbackCounts();
 void LogCompiledInstructions();
 const char* GetInstructionName(UGeckoInstruction _inst);
 }  // namespace PPCTables

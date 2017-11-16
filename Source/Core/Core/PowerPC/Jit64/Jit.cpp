@@ -272,6 +272,9 @@ void Jit64::Shutdown()
 {
   FreeStack();
   FreeCodeSpace();
+  PPCTables::PrintInstructionRunCounts();
+  PPCTables::PrintInstructionFallbackCounts();
+  PPCTables::LogCompiledInstructions();
 
   blocks.Shutdown();
   m_far_code.Shutdown();
@@ -280,6 +283,11 @@ void Jit64::Shutdown()
 
 void Jit64::FallBackToInterpreter(UGeckoInstruction inst)
 {
+  GekkoOPInfo* info = GetOpInfo(inst);
+  if (info)
+  {
+    info->fallbackCount++;
+  }
   gpr.Flush();
   fpr.Flush();
   if (js.op->opinfo->flags & FL_ENDBLOCK)
