@@ -27,19 +27,36 @@
 
 constexpr size_t BUFFER_SIZE = 256;
 
+// Only one of the handleStrerror functions will be used, so make 'inline' to avoid unused
+// function warnings
+
+inline std::string handleStrerror(int ret, char error_message[])
+{
+  if (ret)
+    return "";
+  return std::string(error_message);
+}
+
+inline std::string handleStrerror(const char* ret, char error_message[])
+{
+  if (ret)
+    return std::string(ret);
+  return "";
+}
+
 // Wrapper function to get last strerror(errno) string.
 // This function might change the error code.
 std::string LastStrerrorString()
 {
   char error_message[BUFFER_SIZE];
 
-  // We assume that the XSI-compliant version of strerror_r (returns int) is used
-  // rather than the GNU version (returns char*). The returned value is stored to
-  // an int variable to get a compile-time check that the return type is not char*.
-  const int result = strerror_r(errno, error_message, BUFFER_SIZE);
-  if (result != 0)
-    return "";
-  return std::string(error_message);
+  // The GNU version returns char*, which "may" be a pointer to the provided buffer or some
+  // system-managed const buffer. The returned buffer is always null-terminated, but may be
+  // truncated to fit.
+  // The XSI version return int, which is 0 on success, and the provided buffer will be
+  // filled with the string, otherwise it returns an error code
+  auto result = strerror_r(errno, error_message, BUFFER_SIZE);
+  return handleStrerror(result, error_message);
 }
 
 #ifdef _WIN32
