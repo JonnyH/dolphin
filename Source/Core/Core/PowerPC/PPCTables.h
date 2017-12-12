@@ -95,6 +95,7 @@ struct GekkoOPInfo
   int compileCount;
   u32 lastUse;
   u64 fallbackCount = 0;
+  u64 fallbackRunCount = 0;
 };
 extern std::array<GekkoOPInfo*, 64> m_infoTable;
 extern std::array<GekkoOPInfo*, 1024> m_infoTable4;

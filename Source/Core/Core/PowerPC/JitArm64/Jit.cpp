@@ -142,6 +142,7 @@ void JitArm64::FallBackToInterpreter(UGeckoInstruction inst)
   {
     info->fallbackCount++;
   }
+  IncFallbackRunCount(inst);
   FlushCarry();
   gpr.Flush(FlushMode::FLUSH_ALL, js.op);
   fpr.Flush(FlushMode::FLUSH_ALL, js.op);
@@ -508,6 +509,24 @@ void JitArm64::IncRunCount(UGeckoInstruction inst)
     LDR(INDEX_UNSIGNED, EncodeRegTo64(value), EncodeRegTo64(base), offsetof(GekkoOPInfo, runCount));
     ADD(EncodeRegTo64(value), EncodeRegTo64(value), 1);
     STR(INDEX_SIGNED, EncodeRegTo64(value), EncodeRegTo64(base), offsetof(GekkoOPInfo, runCount));
+    gpr.Unlock(value);
+    gpr.Unlock(base);
+  }
+}
+
+void JitArm64::IncFallbackRunCount(UGeckoInstruction inst)
+{
+  GekkoOPInfo* info = GetOpInfo(inst);
+  if (info)
+  {
+    auto base = gpr.GetReg();
+    auto value = gpr.GetReg();
+    MOVP2R(EncodeRegTo64(base), info);
+    LDR(INDEX_UNSIGNED, EncodeRegTo64(value), EncodeRegTo64(base),
+        offsetof(GekkoOPInfo, fallbackRunCount));
+    ADD(EncodeRegTo64(value), EncodeRegTo64(value), 1);
+    STR(INDEX_SIGNED, EncodeRegTo64(value), EncodeRegTo64(base),
+        offsetof(GekkoOPInfo, fallbackRunCount));
     gpr.Unlock(value);
     gpr.Unlock(base);
   }

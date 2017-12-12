@@ -205,9 +205,9 @@ void LogCompiledInstructions()
     if (pInst->compileCount > 0)
     {
       float percentOfAllInsns = ((double)pInst->runCount * 100.0) / total;
-      fprintf(f.GetHandle(), "%s\t%i\t%" PRId64 "\t%" PRId64 "\t%08x\t%.6f\n", pInst->opname,
-              pInst->compileCount, pInst->runCount, pInst->fallbackCount, pInst->lastUse,
-              percentOfAllInsns);
+      fprintf(f.GetHandle(), "%s\t%i\t%" PRId64 "\t%" PRId64 "\t%" PRId64 "\t%08x\t%.6f\n", pInst->opname,
+              pInst->compileCount, pInst->runCount, pInst->fallbackCount, pInst->fallbackRunCount,
+              pInst->lastUse, percentOfAllInsns);
     }
   }
 
