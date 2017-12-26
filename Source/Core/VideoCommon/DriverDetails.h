@@ -271,6 +271,11 @@ enum Bug
   // Started Version: 1.7
   // Ended Version: 1.10
   BUG_BROKEN_CLEAR_LOADOP_RENDERPASS,
+
+  // BUG: Some drivers seem to setup fb_fetch incorrectly for the first frame - possibly due to lazy
+  // allocation of the swapchain so there's no "previous" buffer to read from?
+  // Causes GPU hangs on the Linux Intel driver
+  BUG_INVALID_FIRST_FRAME_FB_FETCH,
 };
 
 // Initializes our internal vendor, device family, and driver version

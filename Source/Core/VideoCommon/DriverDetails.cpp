@@ -106,6 +106,8 @@ static BugInfo m_known_bugs[] = {
      -1.0, true},
     {API_VULKAN, OS_ALL, VENDOR_IMGTEC, DRIVER_IMGTEC, Family::UNKNOWN,
      BUG_BROKEN_CLEAR_LOADOP_RENDERPASS, -1.0, -1.0, true},
+    {API_OPENGL, OS_LINUX, VENDOR_MESA, DRIVER_I965, Family::UNKNOWN,
+     BUG_INVALID_FIRST_FRAME_FB_FETCH, -1.0, -1.0, true},
 };
 
 static std::map<Bug, BugInfo> m_bugs;

@@ -829,6 +829,20 @@ void Renderer::Init()
   s_raster_font = std::make_unique<RasterFont>();
 
   OpenGL_CreateAttributelessVAO();
+
+  if (g_ActiveConfig.backend_info.bSupportsFramebufferFetch &&
+      DriverDetails::HasBug(DriverDetails::BUG_INVALID_FIRST_FRAME_FB_FETCH) && !IsHeadless())
+  {
+    // Force the whole swapchain to have been 'used' once, as otherwise using fb_fetch causes a gpu
+    // hang on some drivers (possibly lazy-allocated swapchains not being handled correctly?)
+    // FIXME: Query swapchain length instead of assuming 3 is sufficient?
+    for (int i = 0; i < 3; i++)
+    {
+      glClearColor(0, 0, 0, 0);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      GLInterface->Swap();
+    }
+  }
 }
 
 std::unique_ptr<AbstractTexture> Renderer::CreateTexture(const TextureConfig& config)
