@@ -4,6 +4,7 @@
 
 #include "Common/Arm64Emitter.h"
 #include "Common/CommonTypes.h"
+#include "Common/MathUtil.h"
 #include "Common/StringUtil.h"
 
 #include "Core/ConfigManager.h"
@@ -344,4 +345,19 @@ void JitArm64::fctiwzx(UGeckoInstruction inst)
   }
   m_float_emit.ORR(EncodeRegToDouble(VD), EncodeRegToDouble(VD), EncodeRegToDouble(V0));
   fpr.Unlock(V0);
+}
+
+void JitArm64::fsqrtex(UGeckoInstruction inst)
+{
+  INSTRUCTION_START
+  JITDISABLE(bJITFloatingPointOff);
+  FALLBACK_IF(inst.Rc);
+
+
+  u32 b = inst.FB, d = inst.FD;
+  ARM64Reg VB = fpr.R(b);
+  ARM64Reg VD = fpr.RW(d);
+
+  m_float_emit.FRSQRTE(64, VD, VB);
+
 }

@@ -137,6 +137,7 @@ public:
   void fcmpX(UGeckoInstruction inst);
   void frspx(UGeckoInstruction inst);
   void fctiwzx(UGeckoInstruction inst);
+  void fsqrtex(UGeckoInstruction inst);
 
   // Paired
   void ps_maddXX(UGeckoInstruction inst);
