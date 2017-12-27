@@ -4,6 +4,7 @@
 
 #include "Common/Arm64Emitter.h"
 #include "Common/CommonTypes.h"
+#include "Common/MathUtil.h"
 #include "Common/StringUtil.h"
 
 #include "Core/ConfigManager.h"
@@ -344,4 +345,38 @@ void JitArm64::fctiwzx(UGeckoInstruction inst)
   }
   m_float_emit.ORR(EncodeRegToDouble(VD), EncodeRegToDouble(VD), EncodeRegToDouble(V0));
   fpr.Unlock(V0);
+}
+
+void JitArm64::fsqrtex(UGeckoInstruction inst)
+{
+  INSTRUCTION_START
+  JITDISABLE(bJITFloatingPointOff);
+  FALLBACK_IF(inst.Rc);
+
+  gpr.Lock(W30);
+  fpr.Lock(Q0);
+
+  u32 b = inst.FB, d = inst.FD;
+  ARM64Reg VB = fpr.R(b);
+  ARM64Reg VD = fpr.RW(d);
+
+  BitSet32 gprs_in_use = gpr.GetCallerSavedUsed();
+  BitSet32 fprs_in_use = fpr.GetCallerSavedUsed();
+
+  // Wipe the register we are using as temporary
+  fprs_in_use &= BitSet32(~1);
+
+  // Move argument into r0
+  m_float_emit.FMOV(D0, EncodeRegToDouble(VB));
+  // Call the asm implementation of fsqrtex
+  ABI_PushRegisters(gprs_in_use);
+  m_float_emit.ABI_PushRegisters(fprs_in_use, X30);
+  MOVP2R(X30, reinterpret_cast<const void*>(MathUtil::ApproximateReciprocalSquareRoot));
+  BLR(X30);
+  m_float_emit.ABI_PopRegisters(fprs_in_use, X30);
+  ABI_PopRegisters(gprs_in_use);
+  // Move the return from r0 into expected register
+  m_float_emit.FMOV(EncodeRegToDouble(VD), D0);
+  fpr.Unlock(Q0);
+  gpr.Unlock(W30);
 }

@@ -361,7 +361,7 @@ constexpr GekkoOPTemplate table63_2[] = {
     {21, &JitArm64::fp_arith},               // faddx
     {23, &JitArm64::fselx},                  // fselx
     {25, &JitArm64::fp_arith},               // fmulx
-    {26, &JitArm64::FallBackToInterpreter},  // frsqrtex
+    {26, &JitArm64::fsqrtex},                // frsqrtex
     {28, &JitArm64::fp_arith},               // fmsubx
     {29, &JitArm64::fp_arith},               // fmaddx
     {30, &JitArm64::fp_arith},               // fnmsubx
