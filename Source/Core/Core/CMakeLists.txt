@@ -301,6 +301,8 @@ endif()
 
 if(NOT APPLE)
   set(LIBS ${LIBS} videovulkan)
+else()
+  set(LIBS ${LIBS} videomtl)
 endif()
 
 set(LIBS ${LIBS} ${MBEDTLS_LIBRARIES})

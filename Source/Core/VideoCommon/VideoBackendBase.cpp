@@ -16,6 +16,8 @@
 #include "VideoBackends/Software/VideoBackend.h"
 #ifndef __APPLE__
 #include "VideoBackends/Vulkan/VideoBackend.h"
+#else
+#include "VideoBackends/MTL/VideoBackend.h"
 #endif
 
 #include "VideoCommon/VideoBackendBase.h"
@@ -37,13 +39,15 @@ __declspec(dllexport) DWORD NvOptimusEnablement = 1;
 
 void VideoBackendBase::PopulateList()
 {
-  // OGL > D3D11 > Vulkan > SW > Null
+  // OGL > D3D11 > Vulkan > MTL > SW > Null
   g_available_video_backends.push_back(std::make_unique<OGL::VideoBackend>());
 #ifdef _WIN32
   g_available_video_backends.push_back(std::make_unique<DX11::VideoBackend>());
 #endif
 #ifndef __APPLE__
   g_available_video_backends.push_back(std::make_unique<Vulkan::VideoBackend>());
+#else
+  g_available_video_backends.push_back(std::make_unique<MTL::VideoBackend>());
 #endif
   g_available_video_backends.push_back(std::make_unique<SW::VideoSoftware>());
   g_available_video_backends.push_back(std::make_unique<Null::VideoBackend>());
