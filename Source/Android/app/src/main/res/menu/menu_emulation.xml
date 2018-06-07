@@ -100,5 +100,14 @@
         android:id="@+id/menu_change_disc"
         app:showAsAction="never"
         android:title="@string/emulation_change_disc"/>
+    <item
+        android:id="@+id/menu_emulation_profile_enable"
+        android:title="@string/emulation_enable_profiling" />
+    <item
+        android:id="@+id/menu_emulation_profile_disable"
+        android:title="@string/emulation_disable_profiling" />
+    <item
+        android:id="@+id/menu_emulation_write_profile"
+        android:title="@string/emulation_write_profile" />
 
 </menu>

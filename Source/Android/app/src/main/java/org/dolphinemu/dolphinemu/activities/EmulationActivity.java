@@ -120,6 +120,9 @@ public final class EmulationActivity extends AppCompatActivity
 	public static final int MENU_ACTION_LOAD_SLOT6 = 21;
 	public static final int MENU_ACTION_EXIT = 22;
 	public static final int MENU_ACTION_CHANGE_DISC = 23;
+	public static final int MENU_ACTION_ENABLE_PROFILING = 24;
+	public static final int MENU_ACTION_DISABLE_PROFILING = 25;
+	public static final int MENU_ACTION_WRITE_PROFILE = 26;
 
 
 	private static SparseIntArray buttonsActionsMap = new SparseIntArray();
@@ -147,6 +150,10 @@ public final class EmulationActivity extends AppCompatActivity
 		buttonsActionsMap.append(R.id.menu_emulation_load_5, EmulationActivity.MENU_ACTION_LOAD_SLOT5);
 		buttonsActionsMap.append(R.id.menu_change_disc, EmulationActivity.MENU_ACTION_CHANGE_DISC);
 		buttonsActionsMap.append(R.id.menu_exit, EmulationActivity.MENU_ACTION_EXIT);
+
+		buttonsActionsMap.append(R.id.menu_emulation_profile_enable, EmulationActivity.MENU_ACTION_ENABLE_PROFILING);
+		buttonsActionsMap.append(R.id.menu_emulation_profile_disable, EmulationActivity.MENU_ACTION_DISABLE_PROFILING);
+		buttonsActionsMap.append(R.id.menu_emulation_write_profile, EmulationActivity.MENU_ACTION_WRITE_PROFILE);
 	}
 
 	public static void launch(FragmentActivity activity, GameFile gameFile, int position, View sharedView)
@@ -561,6 +568,18 @@ public final class EmulationActivity extends AppCompatActivity
 				toggleMenu();  // Hide the menu (it will be showing since we just clicked it)
 				mEmulationFragment.stopEmulation();
 				exitWithAnimation();
+				return;
+
+			case MENU_ACTION_ENABLE_PROFILING:
+				NativeLibrary.SetProfiling(true);
+				return;
+
+			case MENU_ACTION_DISABLE_PROFILING:
+				NativeLibrary.SetProfiling(false);
+				return;
+
+			case MENU_ACTION_WRITE_PROFILE:
+				NativeLibrary.WriteProfileResults();
 				return;
 		}
 	}
