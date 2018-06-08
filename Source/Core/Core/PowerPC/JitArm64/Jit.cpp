@@ -612,6 +612,7 @@ void JitArm64::DoJit(u32 em_address, JitBlock* b, u32 nextPC)
   js.carryFlagSet = false;
 
   b->asm_text.reset(new std::stringstream());
+  _global_hack_asm_block = b->asm_text.get();
 
   const u8* start = GetCodePtr();
   b->checkedEntry = start;

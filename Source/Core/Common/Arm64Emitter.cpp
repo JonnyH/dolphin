@@ -15,6 +15,9 @@
 #include "Common/CommonTypes.h"
 #include "Common/MathUtil.h"
 
+std::stringstream *_global_hack_asm_block = nullptr;
+
+
 namespace Arm64Gen
 {
 namespace
@@ -2124,6 +2127,7 @@ bool ARM64XEmitter::MOVI2R2(ARM64Reg Rd, u64 imm1, u64 imm2)
 
 void ARM64XEmitter::ABI_PushRegisters(BitSet32 registers)
 {
+  asm_block push_registers(_global_hack_asm_block, "float pop_registers", 0);
   int num_regs = registers.Count();
   int stack_size = (num_regs + (num_regs & 1)) * 8;
   auto it = registers.begin();
@@ -2149,6 +2153,7 @@ void ARM64XEmitter::ABI_PushRegisters(BitSet32 registers)
 
 void ARM64XEmitter::ABI_PopRegisters(BitSet32 registers, BitSet32 ignore_mask)
 {
+  asm_block pop_registers(_global_hack_asm_block, "float pop_registers", 0);
   int num_regs = registers.Count();
   int stack_size = (num_regs + (num_regs & 1)) * 8;
   auto it = registers.begin();
@@ -3913,6 +3918,8 @@ void ARM64FloatEmitter::BIC(u8 size, ARM64Reg Rd, u8 imm, u8 shift)
 
 void ARM64FloatEmitter::ABI_PushRegisters(BitSet32 registers, ARM64Reg tmp)
 {
+  asm_block push_registers(_global_hack_asm_block, "float push_registers", 0);
+
   bool bundled_loadstore = false;
 
   for (int i = 0; i < 32; ++i)
@@ -3993,6 +4000,7 @@ void ARM64FloatEmitter::ABI_PushRegisters(BitSet32 registers, ARM64Reg tmp)
 }
 void ARM64FloatEmitter::ABI_PopRegisters(BitSet32 registers, ARM64Reg tmp)
 {
+  asm_block push_registers(_global_hack_asm_block, "float pop_registers", 0);
   bool bundled_loadstore = false;
   int num_regs = registers.Count();
 
