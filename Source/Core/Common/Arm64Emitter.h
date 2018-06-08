@@ -6,12 +6,32 @@
 
 #include <cstring>
 #include <functional>
+#include <sstream>
 
 #include "Common/ArmCommon.h"
 #include "Common/Assert.h"
 #include "Common/BitSet.h"
 #include "Common/CodeBlock.h"
 #include "Common/Common.h"
+
+class asm_block
+{
+private:
+  const std::string name;
+  std::stringstream *stream;
+  uintptr_t codeptr;
+
+public:
+  asm_block(std::stringstream *stream, const std::string name, uintptr_t codeptr)
+    : stream(stream), name(name), codeptr(codeptr)
+    {
+      (*stream) << "# > 0x" << std::hex << codeptr << " " << name << "\n";
+    }
+    ~asm_block()
+    {
+      (*stream) << "# " << name << "\n";
+    }
+};
 
 namespace Arm64Gen
 {

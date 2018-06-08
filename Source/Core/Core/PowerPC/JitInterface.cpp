@@ -129,6 +129,24 @@ void GetProfileResults(Profiler::ProfileStats* prof_stats)
                                            block.codeSize);
     prof_stats->cost_sum += cost;
     prof_stats->timecost_sum += timecost;
+
+    constexpr bool dump_blocks = true;
+
+    if (dump_blocks)
+    {
+      std::string filename = StringFromFormat("%s/Debug/profile/%08x.bin", File::GetUserPath(D_DUMP_IDX).c_str(), block.effectiveAddress);
+      File::CreateFullPath(filename);
+      File::IOFile file(filename, "w");
+      file.WriteBytes(block.checkedEntry, block.codeSize);
+      if (block.asm_text)
+      {
+        std::string asm_filename = StringFromFormat("%s/Debug/profile/%08x.asm", File::GetUserPath(D_DUMP_IDX).c_str(), block.effectiveAddress);
+        File::CreateFullPath(asm_filename);
+        std::ofstream asm_file(asm_filename);
+        asm_file << block.asm_text->str();
+      }
+    }
+
   });
 
   sort(prof_stats->block_stats.begin(), prof_stats->block_stats.end());

@@ -77,6 +77,8 @@ struct JitBlock
   // This tracks the position if this block within the fast block cache.
   // We allow each block to have only one map entry.
   size_t fast_block_map_index;
+
+  std::unique_ptr<std::stringstream> asm_text;
 };
 
 typedef void (*CompiledCode)();

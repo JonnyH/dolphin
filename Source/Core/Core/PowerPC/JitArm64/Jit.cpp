@@ -24,6 +24,8 @@
 #include "Core/PowerPC/JitArm64/JitArm64_RegCache.h"
 #include "Core/PowerPC/JitInterface.h"
 #include "Core/PowerPC/Profiler.h"
+#include "Common/File.h"
+#include "Common/FileUtil.h"
 
 using namespace Arm64Gen;
 
@@ -506,12 +508,14 @@ void JitArm64::BeginTimeProfile(JitBlock* b)
 
   // stores runCount and ticStart
   STP(INDEX_SIGNED, X1, X2, X0, offsetof(JitBlock::ProfileData, runCount));
+
 }
 
 void JitArm64::EndTimeProfile(JitBlock* b)
 {
   if (!Profiler::g_ProfileBlocks)
     return;
+  asm_block asm_block_obj(b->asm_text.get(), "EndTimeProfile", (uintptr_t)GetCodePtr() - (uintptr_t)b->checkedEntry);
 
   // Fetch the current counter register
   CNTVCT(X1);
@@ -607,11 +611,15 @@ void JitArm64::DoJit(u32 em_address, JitBlock* b, u32 nextPC)
   js.curBlock = b;
   js.carryFlagSet = false;
 
+  b->asm_text.reset(new std::stringstream());
+
   const u8* start = GetCodePtr();
   b->checkedEntry = start;
 
   // Downcount flag check, Only valid for linked blocks
   {
+    asm_block downcount_flag_check(b->asm_text.get(), "downcount_flag_check", (uintptr_t)GetCodePtr() -
+    (uintptr_t)start);
     FixupBranch bail = B(CC_PL);
     MOVI2R(DISPATCHER_PC, js.blockStart);
     B(do_timing);
@@ -624,6 +632,8 @@ void JitArm64::DoJit(u32 em_address, JitBlock* b, u32 nextPC)
   // Conditionally add profiling code.
   if (Profiler::g_ProfileBlocks)
   {
+    asm_block asm_block_obj(b->asm_text.get(), "BeginTimeProfile", (uintptr_t)GetCodePtr() -
+    (uintptr_t)start);
     // get start tic
     BeginTimeProfile(b);
   }
@@ -634,6 +644,7 @@ void JitArm64::DoJit(u32 em_address, JitBlock* b, u32 nextPC)
     int gqr = *code_block.m_gqr_used.begin();
     if (!code_block.m_gqr_modified[gqr] && !GQR(gqr))
     {
+      asm_block asm_block_obj(b->asm_text.get(), "gqr", (uintptr_t)GetCodePtr() - (uintptr_t)b->checkedEntry);
       LDR(INDEX_UNSIGNED, W0, PPC_REG, PPCSTATE_OFF(spr[SPR_GQR0]) + gqr * 4);
       FixupBranch no_fail = CBZ(W0);
       FixupBranch fail = B();
@@ -677,6 +688,7 @@ void JitArm64::DoJit(u32 em_address, JitBlock* b, u32 nextPC)
     {
       js.fifoBytesSinceCheck = 0;
       js.mustCheckFifo = false;
+      asm_block asm_block_obj(b->asm_text.get(), "check_fifo", (uintptr_t)GetCodePtr() - (uintptr_t)b->checkedEntry);
 
       gpr.Lock(W30);
       BitSet32 regs_in_use = gpr.GetCallerSavedUsed();
@@ -720,6 +732,7 @@ void JitArm64::DoJit(u32 em_address, JitBlock* b, u32 nextPC)
     // asynchronous.
     if (jo.optimizeGatherPipe && gatherPipeIntCheck)
     {
+      asm_block asm_block_obj(b->asm_text.get(), "gather_pipe", (uintptr_t)GetCodePtr() - (uintptr_t)b->checkedEntry);
       ARM64Reg WA = gpr.GetReg();
       ARM64Reg XA = EncodeRegTo64(WA);
       LDR(INDEX_UNSIGNED, WA, PPC_REG, PPCSTATE_OFF(Exceptions));
@@ -749,6 +762,7 @@ void JitArm64::DoJit(u32 em_address, JitBlock* b, u32 nextPC)
     {
       if ((opinfo->flags & FL_USE_FPU) && !js.firstFPInstructionFound)
       {
+        asm_block asm_block_obj(b->asm_text.get(), "fp_exeption", (uintptr_t)GetCodePtr() - (uintptr_t)b->checkedEntry);
         // This instruction uses FPU - needs to add FP exception bailout
         ARM64Reg WA = gpr.GetReg();
         LDR(INDEX_UNSIGNED, WA, PPC_REG, PPCSTATE_OFF(msr));
@@ -775,6 +789,10 @@ void JitArm64::DoJit(u32 em_address, JitBlock* b, u32 nextPC)
 
         js.firstFPInstructionFound = true;
       }
+
+      std::string op_name = "op ";
+      op_name += op.opinfo->opname;
+      asm_block asm_block_obj(b->asm_text.get(), op_name, (uintptr_t)GetCodePtr() - (uintptr_t)start);
 
       CompileInstruction(op);
       if (!CanMergeNextInstructions(1) || js.op[1].opinfo->type != ::OpType::Integer)
