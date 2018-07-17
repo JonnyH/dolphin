@@ -599,7 +599,8 @@ void Renderer::ClearScreen(const EFBRectangle& rc, bool color_enable, bool alpha
     use_clear_render_pass = false;
 
   // Fastest path: Use a render pass to clear the buffers.
-  if (use_clear_render_pass)
+  if (use_clear_render_pass &&
+      !(z_enable && DriverDetails::HasBug(DriverDetails::BUG_BROKEN_CLEAR_DEPTH_ATTACHMENTS)))
   {
     const std::array<VkClearValue, 2> clear_values = {{clear_color_value, clear_depth_value}};
     StateTracker::GetInstance()->BeginClearRenderPass(target_vk_rc, clear_values.data(),
@@ -622,7 +623,7 @@ void Renderer::ClearScreen(const EFBRectangle& rc, bool color_enable, bool alpha
       color_enable = false;
       alpha_enable = false;
     }
-    if (z_enable)
+    if (z_enable && !DriverDetails::HasBug(DriverDetails::BUG_BROKEN_CLEAR_DEPTH_ATTACHMENTS))
     {
       clear_attachments[num_clear_attachments].aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
       clear_attachments[num_clear_attachments].colorAttachment = 0;

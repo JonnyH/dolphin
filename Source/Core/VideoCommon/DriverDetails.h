@@ -268,6 +268,11 @@ enum Bug
   // Started Version: 1.7
   // Ended Version: 1.10
   BUG_BROKEN_CLEAR_LOADOP_RENDERPASS,
+
+  // BUG: Some vulkan implementations don't clear some depth formats
+  // At least on a Snapdragon 835 w/driver 63.219.2354 this is clearly shown in the windwaker intro
+  // and in-game
+  BUG_BROKEN_CLEAR_DEPTH_ATTACHMENTS,
 };
 
 // Initializes our internal vendor, device family, and driver version
