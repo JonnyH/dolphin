@@ -98,7 +98,8 @@ ShaderCode GenerateVertexShaderCode(APIType api_type, const ShaderHostConfig& ho
   out.Write("};\n");
 
   out.Write("struct VS_OUTPUT {\n");
-  GenerateVSOutputMembers(out, api_type, uid_data->numTexGens, per_pixel_lighting, "");
+  GenerateVSOutputMembers(out, api_type, uid_data->numTexGens, per_pixel_lighting, "",
+                          host_config.backend_depth_clamp);
   out.Write("};\n");
 
   if (api_type == APIType::OpenGL || api_type == APIType::Vulkan)
@@ -133,7 +134,8 @@ ShaderCode GenerateVertexShaderCode(APIType api_type, const ShaderHostConfig& ho
     {
       out.Write("VARYING_LOCATION(0) out VertexData {\n");
       GenerateVSOutputMembers(out, api_type, uid_data->numTexGens, per_pixel_lighting,
-                              GetInterpolationQualifier(msaa, ssaa, true, false));
+                              GetInterpolationQualifier(msaa, ssaa, true, false),
+                              host_config.backend_depth_clamp);
       out.Write("} vs;\n");
     }
     else
@@ -487,7 +489,8 @@ ShaderCode GenerateVertexShaderCode(APIType api_type, const ShaderHostConfig& ho
   {
     if (host_config.backend_geometry_shaders || api_type == APIType::Vulkan)
     {
-      AssignVSOutputMembers(out, "vs", "o", uid_data->numTexGens, per_pixel_lighting);
+      AssignVSOutputMembers(out, "vs", "o", uid_data->numTexGens, per_pixel_lighting,
+                            host_config.backend_depth_clamp);
     }
     else
     {

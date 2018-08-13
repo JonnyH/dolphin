@@ -267,7 +267,7 @@ void VulkanContext::PopulateBackendInfoFeatures(VideoConfig* config, VkPhysicalD
                                                 const VkPhysicalDeviceFeatures& features)
 {
   config->backend_info.MaxTextureSize = properties.limits.maxImageDimension2D;
-  config->backend_info.bSupportsDualSourceBlend = (features.dualSrcBlend == VK_TRUE);
+  config->backend_info.bSupportsDualSourceBlend = false;//(features.dualSrcBlend == VK_TRUE);
   config->backend_info.bSupportsGeometryShaders = (features.geometryShader == VK_TRUE);
   config->backend_info.bSupportsGSInstancing = (features.geometryShader == VK_TRUE);
   config->backend_info.bSupportsBBox = config->backend_info.bSupportsFragmentStoresAndAtomics =
@@ -285,7 +285,7 @@ void VulkanContext::PopulateBackendInfoFeatures(VideoConfig* config, VkPhysicalD
 
   // Depth clamping implies shaderClipDistance and depthClamp
   config->backend_info.bSupportsDepthClamp =
-      (features.depthClamp == VK_TRUE && features.shaderClipDistance == VK_TRUE);
+      false;//(features.depthClamp == VK_TRUE && features.shaderClipDistance == VK_TRUE);
 
   // textureCompressionBC implies BC1 through BC7, which is a superset of DXT1/3/5, which we need.
   const bool supports_bc = features.textureCompressionBC == VK_TRUE;

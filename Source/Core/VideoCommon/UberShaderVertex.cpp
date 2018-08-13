@@ -45,7 +45,8 @@ ShaderCode GenVertexShader(APIType ApiType, const ShaderHostConfig& host_config,
   out.Write("};\n");
 
   out.Write("struct VS_OUTPUT {\n");
-  GenerateVSOutputMembers(out, ApiType, numTexgen, per_pixel_lighting, "");
+  GenerateVSOutputMembers(out, ApiType, numTexgen, per_pixel_lighting, "",
+                          host_config.backend_depth_clamp);
   out.Write("};\n\n");
 
   WriteUberShaderCommonHeader(out, ApiType, host_config);
@@ -68,7 +69,8 @@ ShaderCode GenVertexShader(APIType ApiType, const ShaderHostConfig& host_config,
     {
       out.Write("VARYING_LOCATION(0) out VertexData {\n");
       GenerateVSOutputMembers(out, ApiType, numTexgen, per_pixel_lighting,
-                              GetInterpolationQualifier(msaa, ssaa, true, false));
+                              GetInterpolationQualifier(msaa, ssaa, true, false),
+                              host_config.backend_depth_clamp);
       out.Write("} vs;\n");
     }
     else
@@ -269,7 +271,8 @@ ShaderCode GenVertexShader(APIType ApiType, const ShaderHostConfig& host_config,
   {
     if (host_config.backend_geometry_shaders || ApiType == APIType::Vulkan)
     {
-      AssignVSOutputMembers(out, "vs", "o", numTexgen, per_pixel_lighting);
+      AssignVSOutputMembers(out, "vs", "o", numTexgen, per_pixel_lighting,
+                            host_config.backend_depth_clamp);
     }
     else
     {
@@ -477,4 +480,4 @@ void EnumerateVertexShaderUids(const std::function<void(const VertexShaderUid&)>
     callback(uid);
   }
 }
-}
+}  // namespace UberShader

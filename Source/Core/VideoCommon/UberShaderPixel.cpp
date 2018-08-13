@@ -59,7 +59,8 @@ ShaderCode GenPixelShader(APIType ApiType, const ShaderHostConfig& host_config,
 
   out.Write("// Pixel UberShader for %u texgens%s%s\n", numTexgen,
             early_depth ? ", early-depth" : "", per_pixel_depth ? ", per-pixel depth" : "");
-  WritePixelShaderCommonHeader(out, ApiType, numTexgen, per_pixel_lighting, bounding_box);
+  WritePixelShaderCommonHeader(out, ApiType, numTexgen, per_pixel_lighting, bounding_box,
+                               host_config);
   WriteUberShaderCommonHeader(out, ApiType, host_config);
   if (per_pixel_lighting)
     WriteLightingFunction(out);
@@ -107,7 +108,8 @@ ShaderCode GenPixelShader(APIType ApiType, const ShaderHostConfig& host_config,
     {
       out.Write("VARYING_LOCATION(0) in VertexData {\n");
       GenerateVSOutputMembers(out, ApiType, numTexgen, per_pixel_lighting,
-                              GetInterpolationQualifier(msaa, ssaa, true, true));
+                              GetInterpolationQualifier(msaa, ssaa, true, true),
+                              host_config.backend_depth_clamp);
 
       if (stereo)
         out.Write("  flat int layer;\n");
@@ -1414,4 +1416,4 @@ void EnumeratePixelShaderUids(const std::function<void(const PixelShaderUid&)>& 
     }
   }
 }
-}
+}  // namespace UberShader

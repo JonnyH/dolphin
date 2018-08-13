@@ -351,7 +351,8 @@ void ClearUnusedPixelShaderUidBits(APIType ApiType, const ShaderHostConfig& host
 }
 
 void WritePixelShaderCommonHeader(ShaderCode& out, APIType ApiType, u32 num_texgens,
-                                  bool per_pixel_lighting, bool bounding_box)
+                                  bool per_pixel_lighting, bool bounding_box,
+                                  const ShaderHostConfig& host_config)
 {
   // dot product for integer vectors
   out.Write("int idot(int3 x, int3 y)\n"
@@ -458,7 +459,8 @@ void WritePixelShaderCommonHeader(ShaderCode& out, APIType ApiType, u32 num_texg
   }
 
   out.Write("struct VS_OUTPUT {\n");
-  GenerateVSOutputMembers(out, ApiType, num_texgens, per_pixel_lighting, "");
+  GenerateVSOutputMembers(out, ApiType, num_texgens, per_pixel_lighting, "",
+                          host_config.backend_depth_clamp);
   out.Write("};\n");
 }
 
@@ -492,7 +494,7 @@ ShaderCode GeneratePixelShaderCode(APIType ApiType, const ShaderHostConfig& host
 
   // Stuff that is shared between ubershaders and pixelgen.
   WritePixelShaderCommonHeader(out, ApiType, uid_data->genMode_numtexgens, per_pixel_lighting,
-                               uid_data->bounding_box);
+                               uid_data->bounding_box, host_config);
 
   if (uid_data->forced_early_z && g_ActiveConfig.backend_info.bSupportsEarlyZ)
   {
@@ -592,7 +594,8 @@ ShaderCode GeneratePixelShaderCode(APIType ApiType, const ShaderHostConfig& host
     {
       out.Write("VARYING_LOCATION(0) in VertexData {\n");
       GenerateVSOutputMembers(out, ApiType, uid_data->genMode_numtexgens, per_pixel_lighting,
-                              GetInterpolationQualifier(msaa, ssaa, true, true));
+                              GetInterpolationQualifier(msaa, ssaa, true, true),
+                              host_config.backend_depth_clamp);
 
       if (stereo)
         out.Write("\tflat int layer;\n");

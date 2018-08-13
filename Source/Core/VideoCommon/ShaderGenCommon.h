@@ -214,7 +214,8 @@ inline void DefineOutputMember(T& object, APIType api_type, const char* qualifie
 
 template <class T>
 inline void GenerateVSOutputMembers(T& object, APIType api_type, u32 texgens,
-                                    bool per_pixel_lighting, const char* qualifier)
+                                    bool per_pixel_lighting, const char* qualifier,
+                                    bool depth_clamp)
 {
   DefineOutputMember(object, api_type, qualifier, "float4", "pos", -1, "POSITION");
   DefineOutputMember(object, api_type, qualifier, "float4", "colors_", 0, "COLOR", 0);
@@ -233,13 +234,16 @@ inline void GenerateVSOutputMembers(T& object, APIType api_type, u32 texgens,
                        texgens + 2);
   }
 
-  DefineOutputMember(object, api_type, qualifier, "float", "clipDist", 0, "SV_ClipDistance", 0);
-  DefineOutputMember(object, api_type, qualifier, "float", "clipDist", 1, "SV_ClipDistance", 1);
+  if (depth_clamp)
+  {
+    DefineOutputMember(object, api_type, qualifier, "float", "clipDist", 0, "SV_ClipDistance", 0);
+    DefineOutputMember(object, api_type, qualifier, "float", "clipDist", 1, "SV_ClipDistance", 1);
+  }
 }
 
 template <class T>
 inline void AssignVSOutputMembers(T& object, const char* a, const char* b, u32 texgens,
-                                  bool per_pixel_lighting)
+                                  bool per_pixel_lighting, bool depth_clamp)
 {
   object.Write("\t%s.pos = %s.pos;\n", a, b);
   object.Write("\t%s.colors_0 = %s.colors_0;\n", a, b);
@@ -256,8 +260,11 @@ inline void AssignVSOutputMembers(T& object, const char* a, const char* b, u32 t
     object.Write("\t%s.WorldPos = %s.WorldPos;\n", a, b);
   }
 
-  object.Write("\t%s.clipDist0 = %s.clipDist0;\n", a, b);
-  object.Write("\t%s.clipDist1 = %s.clipDist1;\n", a, b);
+  if (depth_clamp)
+  {
+    object.Write("\t%s.clipDist0 = %s.clipDist0;\n", a, b);
+    object.Write("\t%s.clipDist1 = %s.clipDist1;\n", a, b);
+  }
 }
 
 // We use the flag "centroid" to fix some MSAA rendering bugs. With MSAA, the
