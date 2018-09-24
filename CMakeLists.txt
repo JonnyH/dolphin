@@ -598,7 +598,7 @@ else()
 endif()
 
 if(NOT APPLE)
-  check_lib(PNG libpng png png.h QUIET)
+  check_lib(PNG libpng png>=1.6 png.h QUIET)
 endif()
 if (PNG_FOUND)
   message(STATUS "Using shared libpng")
